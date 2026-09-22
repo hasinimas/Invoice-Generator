@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Sehasna Travels Invoice Generator</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="../assets/logo-transparent.png" class="brand-logo" alt="Sehasna Travels" />
+        <span class="brand-name">Sehasna Travels</span>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active" data-view="dashboard">Invoices</button>
+        <button class="nav-item" data-view="settings">Company settings</button>
+      </nav>
+      <button class="nav-cta" id="new-invoice-btn">+ New invoice</button>
+    </aside>
+
+    <main class="main">
+      <!-- Dashboard -->
+      <section class="view active" id="view-dashboard">
+        <header class="view-header">
+          <h1>Invoices</h1>
+          <input type="search" id="search-input" placeholder="Search by number or customer" />
+        </header>
+        <div class="table-wrap">
+          <table id="invoice-table">
+            <thead>
+              <tr>
+                <th>Number</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Due</th>
+                <th class="num">Total</th>
+                <th>Status</th>
+                <th class="actions-col"></th>
+              </tr>
+            </thead>
+            <tbody id="invoice-tbody"></tbody>
+          </table>
+          <div class="empty-state" id="empty-state" hidden>
+            <p>No invoices yet.</p>
+            <button class="btn-primary" id="empty-new-btn">Create your first invoice</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Invoice editor -->
+      <section class="view" id="view-editor">
+        <header class="view-header">
+          <h1 id="editor-title">New invoice</h1>
+          <div class="header-actions">
+            <button class="btn-ghost" id="editor-cancel-btn">Cancel</button>
+            <button class="btn-secondary" id="editor-save-btn">Save</button>
+            <button class="btn-primary" id="editor-export-btn">Save &amp; export PDF</button>
+          </div>
+        </header>
+
+        <div class="editor-grid">
+          <div class="card">
+            <div class="label">Bill to</div>
+            <div class="field-row">
+              <input type="text" id="cust-name" placeholder="Customer name" />
+              <input type="text" id="cust-email" placeholder="Email" />
+            </div>
+            <div class="field-row">
+              <input type="text" id="cust-address" placeholder="Address" />
+              <input type="text" id="cust-phone" placeholder="Phone" />
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="label">Details</div>
+            <div class="field-row">
+              <label class="mini-label">Invoice #
+                <input type="text" id="inv-number" placeholder="Auto-generated" />
+              </label>
+              <label class="mini-label">Status
+                <select id="inv-status">
+                  <option value="draft">Draft</option>
+                  <option value="sent">Sent</option>
+                  <option value="paid">Paid</option>
+                </select>
+              </label>
+            </div>
+            <div class="field-row">
+              <label class="mini-label">Invoice date
+                <input type="date" id="inv-date" />
+              </label>
+              <label class="mini-label">Due date
+                <input type="date" id="inv-due" />
+              </label>
+            </div>
+            <label class="checkbox-label">
+              <input type="checkbox" id="inv-stamp-paid" />
+              Add a red "PAID" stamp to the PDF (only shows when status is Paid)
+            </label>
+          </div>
+
+          <div class="card wide">
+            <div class="label">Line items</div>
+            <table class="items-table" id="items-table">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th class="num">No of PAX</th>
+                  <th class="num">Rate</th>
+                  <th class="num">Amount</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="items-tbody"></tbody>
+            </table>
+            <button class="btn-ghost" id="add-item-btn">+ Add line item</button>
+          </div>
+
+          <div class="card wide">
+            <div class="label">Order details</div>
+            <textarea id="inv-order-details" rows="5" placeholder="Itinerary, order description, or any other long-form details for this invoice..."></textarea>
+          </div>
+
+          <div class="card">
+            <div class="label">Adjustments</div>
+            <div class="field-row">
+              <label class="mini-label">Discount %
+                <input type="number" id="inv-discount" min="0" step="0.01" value="0" />
+              </label>
+              <label class="mini-label">Tax %
+                <input type="number" id="inv-tax" min="0" step="0.01" value="0" />
+              </label>
+            </div>
+          </div>
+
+          <div class="card totals-card">
+            <div class="label">Summary</div>
+            <div class="totals-line"><span>Subtotal</span><span id="sum-subtotal">0.00</span></div>
+            <div class="totals-line"><span>Discount</span><span id="sum-discount">0.00</span></div>
+            <div class="totals-line"><span>Tax</span><span id="sum-tax">0.00</span></div>
+            <div class="totals-line grand"><span>Total</span><span id="sum-total">0.00</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Settings -->
+      <section class="view" id="view-settings">
+        <header class="view-header">
+          <h1>Company settings</h1>
+          <button class="btn-primary" id="settings-save-btn">Save settings</button>
+        </header>
+        <div class="editor-grid">
+          <div class="card wide">
+            <div class="label">Company</div>
+            <div class="field-row">
+              <input type="text" id="set-name" placeholder="Company name" />
+              <input type="text" id="set-email" placeholder="Email" />
+            </div>
+            <div class="field-row">
+              <input type="text" id="set-address" placeholder="Address" />
+            </div>
+            <div class="field-row">
+              <input type="text" id="set-phone" placeholder="Phone 1" />
+              <input type="text" id="set-phone2" placeholder="Phone 2 (optional)" />
+            </div>
+            <div class="field-row">
+              <input type="text" id="set-website" placeholder="Website" />
+            </div>
+            <div class="field-row logo-row">
+              <img id="logo-preview" class="logo-preview" hidden />
+              <button class="btn-ghost" id="pick-logo-btn">Upload logo</button>
+              <button class="btn-ghost" id="remove-logo-btn" hidden>Remove logo</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="label">Invoice defaults</div>
+            <label class="mini-label">Currency symbol
+              <input type="text" id="set-currency" maxlength="4" />
+            </label>
+            <label class="mini-label">Tax label
+              <input type="text" id="set-tax-label" />
+            </label>
+            <label class="mini-label">Invoice number prefix
+              <input type="text" id="set-prefix" placeholder="(none)" />
+            </label>
+            <label class="mini-label">Next invoice number
+              <input type="number" id="set-next-number" min="1" />
+            </label>
+          </div>
+          <div class="card wide">
+            <div class="label">Payment details</div>
+            <div class="field-row">
+              <input type="text" id="set-bank-account-name" placeholder="Account name" />
+              <input type="text" id="set-bank-account-number" placeholder="Account number" />
+              <input type="text" id="set-bank-name" placeholder="Bank" />
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="overlay" id="confirm-overlay" hidden>
+    <div class="confirm-box">
+      <p id="confirm-message"></p>
+      <div class="confirm-actions">
+        <button class="btn-ghost" id="confirm-no">Cancel</button>
+        <button class="btn-primary" id="confirm-yes">Delete</button>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
